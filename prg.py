@@ -97,7 +97,37 @@ while(super_c == True):
             super_c = False
         else: 
             print("Hi ma'am. Which would you like to decode? \n T for total ot enter a number.)")
-            choi3 = input()
+            choi3 = input().strip()
+            if c_type == 'c':
+                shift = int(input(f"\nEnter shift for Caesar Record {rec_no}: "))
+                for char in cipher_text:
+                    if char.isalpha():
+                        case = ord('A') if char.isupper() else ord('a')
+                        plain_text += chr((ord(char) - case - shift) % 26 + case)
+                    else:
+                    plain_text += char
+            elif c_type == 'r':
+                for char in cipher_text:
+                    if char.isalpha():
+                        case = ord('A') if char.isupper() else ord('a')
+                        plain_text += chr((ord(char) - case - 13) % 26 + case)
+                    else:
+                        plain_text += char
+            elif c_type == 'v':
+                key = input(f"\nEnter key for Vigenère Record {rec_no}: ").upper()
+                k_idx = 0
+                for char in cipher_text:
+                    if char.isalpha():
+                        case = ord('A') if char.isupper() else ord('a')
+                        c_val = ord(char) - case
+                        k_val = ord(key[k_idx % len(key)]) - ord('A')
+                
+                        plain_text += chr((c_val - k_val) % 26 + case)
+                        k_idx += 1
+                    else:
+                        plain_text += char
+                
+    print(f"Decoded Record {rec_no}: {plain_text}")
     else:
         print("Try again bruv.")
         continue
