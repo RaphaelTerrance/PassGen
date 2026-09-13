@@ -5,7 +5,7 @@ choi1 = int(input())
 cipher_rec=[]
 rec_no=0
 if choi1 == '1':
-     while(check=True):
+     while(check==True):
         plain_t = input("Go ahead, enter that pwd! : ")
         choi2 = int(print("Select your choice of cipher! \n 1 = Ceasar shift \n 2 = ROT-13 \n 3 = Vignere" ))
         cipher_t =""
@@ -13,10 +13,8 @@ if choi1 == '1':
             shift = int(print("Enter how many shifts: "))
             for char in plain_t:
                     if char.isalpha():
-                    #big brain move
-                    #check if upper or lower then used ord(A)/ord(a) as needed
-                    case_char = ord(A) if char.isupper() else ord (a)
-                    cipher_t += chr((ord(char)-case_char+shift)%26+case_char)
+                        case_char = ord(A) if char.isupper() else ord (a)
+                        cipher_t += chr((ord(char)-case_char+shift)%26+case_char)
                     else:
                         cipher+=char
             print("Encoding:")
@@ -31,14 +29,14 @@ if choi1 == '1':
             for char in plain_t:
                 if char.isalpha():
                 # shift is 13
-                case_char = ord(A) if char.isupper() else ord (a)
-                cipher_t += chr((ord(char) - case_char + 13)%26+case_char)
+                    case_char = ord(A) if char.isupper() else ord (a)
+                    cipher_t += chr((ord(char) - case_char + 13)%26+case_char)
                 else:
                     cipher+=char
             print("Encoding:")
-                while i <=10:
-                    print("*")
-                    time.sleep(0.1)
+            while i <=10:
+                print("*")
+                time.sleep(0.1)
             print("The cipher text:"+cipher_t+"\n Shall I save it to the list? (y/n)")
             if (input()==y):
                 rec_no+=1
