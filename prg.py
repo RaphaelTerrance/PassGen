@@ -45,7 +45,7 @@ while(super_c == True):
                 print("Encoding:")
                 while i <=10:
                     print("*",end="")
-                    time.sleep(0.01)
+                    time.sleep(0.0001)
                     i+=1
                 print()
                 print("The cipher text:"+cipher_t+"\n Shall I save it to the list? (y/n)")
@@ -55,7 +55,7 @@ while(super_c == True):
             if choi2 == 3:
                 key = input("Enter your key: ")
                 key_index = 0
-                for char in plaintext:
+                for char in plain_t:
                     if char.isalpha():
                         start = ord('A') if char.isupper() else ord('a')
                         
@@ -66,16 +66,17 @@ while(super_c == True):
                         
                         # Apply shift with wrap-around
                         c_val = (p_val + k_val) % 26
-                        ciphertext.append(chr(start + c_val))
+                        cipher_t.append(chr(start + c_val))
                         
                         # Move to the next letter of the key
                         key_index += 1
                 else:
                     cipher_t.append(char)
                 print("Encoding")
-                #   print("*",end="")
-                 #   i+=1
-                 #   time.sleep(1)
+                while (i<=10):
+                    print("*",end="")
+                    i+=1
+                    time.sleep(0.0001)
                 print("The cipher text:"+cipher_t+"\n Shall I save it to the list? (y/n)")
                 if (input()=='y'):
                     rec_no+=1
@@ -84,53 +85,54 @@ while(super_c == True):
             check = False if checkk=='n' else True
     #End of encoding
     elif choi1 == '2':
-        print(cipher_rec[i] for i in range (len(key)))
+        print(cipher_rec[i] for i in range (len(cipher_rec)))
     
-    elif choi1 == 'Maria' or 'Devananda' or "Jenifa":
+    elif choi1 in ('Maria','Devananda',"Jenifa"):
         
-        print("Hi. You have complete access to the record and their plaintext. We have access of ", (int(len(cipher_rec)/3)), " ciphertext.")
+        print("Hi. You have complete access to the record and their plaintext. We have access of ", (int(len(cipher_rec))), " ciphertext.")
         print("Wanna decode? (y/n)")
-        check = True if input() == 'y' else False
+        check = True if input() in ('y') else False
         
-        if choi1 == "Maria" or "Devananda":
+        if choi1 in["Maria","Devananda"]:
             print("Don't bother.")
-            super_c = False
-        else: 
-            print("Hi ma'am. Which would you like to decode? \n T for total ot enter a number.)")
+            super_c = False if input("Shall we end this?(y/n)") in ('y') else True
+        elif cho1 in ["Jenifa"]: 
+            print("Hi ma'am. Which would you like to decode? \n Enter T for total list or enter the index number.)")
             choi3 = input().strip()
+            cipher_t = cipher_rec[choi3][1]
+            c_type = cipher_rec[choi3][2]
             if c_type == 'c':
                 shift = int(input(f"\nEnter shift for Caesar Record {rec_no}: "))
-                for char in cipher_text:
+                for char in cipher_t:
                     if char.isalpha():
                         case = ord('A') if char.isupper() else ord('a')
-                        plain_text += chr((ord(char) - case - shift) % 26 + case)
+                        plain_t += chr((ord(char) - case - shift) % 26 + case)
                     else:
-                    plain_text += char
+                        plain_t += char
             elif c_type == 'r':
-                for char in cipher_text:
+                for char in cipher_t:
                     if char.isalpha():
                         case = ord('A') if char.isupper() else ord('a')
-                        plain_text += chr((ord(char) - case - 13) % 26 + case)
+                        plain_t += chr((ord(char) - case - 13) % 26 + case)
                     else:
-                        plain_text += char
+                        plain_t += char
             elif c_type == 'v':
                 key = input(f"\nEnter key for Vigenère Record {rec_no}: ").upper()
                 k_idx = 0
-                for char in cipher_text:
+                for char in cipher_t:
                     if char.isalpha():
                         case = ord('A') if char.isupper() else ord('a')
                         c_val = ord(char) - case
                         k_val = ord(key[k_idx % len(key)]) - ord('A')
                 
-                        plain_text += chr((c_val - k_val) % 26 + case)
+                        plain_t += chr((c_val - k_val) % 26 + case)
                         k_idx += 1
                     else:
                         plain_text += char
-                
-    print(f"Decoded Record {rec_no}: {plain_text}")
-    else:
-        print("Try again bruv.")
-        continue
+                print(f"Decoded Record {rec_no}: {plain_text}")
+        else:
+            print("Try again bruv.")
+            continue
 
 
 
