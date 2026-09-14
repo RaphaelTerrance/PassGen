@@ -18,10 +18,10 @@ def show_dots():
     print()
 
 while True:
-    print('\nHi! Choose an option:')
+    print('\n Hi! Choose an option:')
     print('1. Ciphertext Generation')
     print('2. Ciphertext Record')
-    print('3. Type a special name (Maria, Devananda, Jenifa)')
+    print('3. Type one of the special names.')
     print('Q. Quit')
     choice = input('> ').strip()
 
