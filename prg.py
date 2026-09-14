@@ -1,8 +1,5 @@
-"""Simple, student-friendly pass generator and cipher manager.
-
-This version avoids function definitions and keeps logic explicit
-so it's easier to read for learners who haven't covered functions yet.
-"""
+#this took 3 days of recoding by hand, 1 hr by codex
+#pls kurt cobain me
 import time
 
 # Storage for records: each record is a dict with id, cipher, type ('c', 'r', 'v')
@@ -85,7 +82,14 @@ while True:
         show_dots()
         print('The ciphertext:', cipher_text)
         if input('Save to list? (y/n) ').strip().lower() == 'y':
-            records.append({'id': next_id, 'cipher': cipher_text, 'type': c_type})
+            # store meta so we can decode automatically later
+            if c_type == 'c':
+                meta = shift
+            elif c_type == 'v':
+                meta = key.upper()
+            else:
+                meta = None
+            records.append({'id': next_id, 'cipher': cipher_text, 'type': c_type, 'meta': meta})
             next_id += 1
 
     elif choice == '2':
@@ -114,7 +118,7 @@ while True:
 
         # Jenifa: allow decoding
         if name == 'Jenifa':
-            print('Which would you like to decode? Enter T for total list or an index number.')
+            print('Hi madam Which would you like to decode? Enter T for total list or an index number.')
             sel = input('> ').strip()
             if sel.upper() == 'T':
                 if not records:
@@ -123,12 +127,16 @@ while True:
                 for rec in records:
                     print(f"Decoding record [{rec['id']}]: type={rec['type']} cipher={rec['cipher']}")
                     if rec['type'] == 'c':
-                        while True:
-                            try:
-                                shift = int(input(f"Enter shift for Caesar record [{rec['id']}]: "))
-                                break
-                            except ValueError:
-                                print('Please enter an integer shift.')
+                        # use stored shift if available
+                        if rec.get('meta') is not None:
+                            shift = int(rec['meta'])
+                        else:
+                            while True:
+                                try:
+                                    shift = int(input(f"Enter shift for Caesar record [{rec['id']}]: "))
+                                    break
+                                except ValueError:
+                                    print('Please enter an integer shift.')
                         parts = []
                         for ch in rec['cipher']:
                             if ch.isalpha():
@@ -150,14 +158,18 @@ while True:
                         print(f"Decoded [{rec['id']}]: {''.join(parts)}\n")
 
                     elif rec['type'] == 'v':
-                        key = input(f"Enter key for Vigenère record [{rec['id']}]: ").strip().upper()
+                        # use stored key if available
+                        if rec.get('meta'):
+                            key_use = rec['meta']
+                        else:
+                            key_use = input(f"Enter key for Vigenère record [{rec['id']}]: ").strip().upper()
                         parts = []
                         k_idx = 0
                         for ch in rec['cipher']:
                             if ch.isalpha():
                                 base = ord('A') if ch.isupper() else ord('a')
                                 c_val = ord(ch) - base
-                                k_val = ord(key[k_idx % len(key)]) - ord('A')
+                                k_val = ord(key_use[k_idx % len(key_use)]) - ord('A')
                                 parts.append(chr((c_val - k_val) % 26 + base))
                                 k_idx += 1
                             else:
@@ -181,12 +193,15 @@ while True:
 
                 print(f"Decoding record [{found['id']}]: type={found['type']} cipher={found['cipher']}")
                 if found['type'] == 'c':
-                    while True:
-                        try:
-                            shift = int(input(f"Enter shift for Caesar record [{found['id']}]: "))
-                            break
-                        except ValueError:
-                            print('Please enter an integer shift.')
+                    if found.get('meta') is not None:
+                        shift = int(found['meta'])
+                    else:
+                        while True:
+                            try:
+                                shift = int(input(f"Enter shift for Caesar record [{found['id']}]: "))
+                                break
+                            except ValueError:
+                                print('Please enter an integer shift.')
                     parts = []
                     for ch in found['cipher']:
                         if ch.isalpha():
@@ -207,14 +222,17 @@ while True:
                     print('Decoded:', ''.join(parts))
 
                 elif found['type'] == 'v':
-                    key = input(f"Enter key for Vigenère record [{found['id']}]: ").strip().upper()
+                    if found.get('meta'):
+                        key_use = found['meta']
+                    else:
+                        key_use = input(f"Enter key for Vigenère record [{found['id']}]: ").strip().upper()
                     parts = []
                     k_idx = 0
                     for ch in found['cipher']:
                         if ch.isalpha():
                             base = ord('A') if ch.isupper() else ord('a')
                             c_val = ord(ch) - base
-                            k_val = ord(key[k_idx % len(key)]) - ord('A')
+                            k_val = ord(key_use[k_idx % len(key_use)]) - ord('A')
                             parts.append(chr((c_val - k_val) % 26 + base))
                             k_idx += 1
                         else:
