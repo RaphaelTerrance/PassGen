@@ -118,7 +118,7 @@ while True:
 
         # Jenifa: allow decoding
         if name == 'Jenifa':
-            print('Hi madam Which would you like to decode? Enter T for total list or an index number.')
+            print("Hi ma'am Which would you like to decode? Enter T for total list or an index number.")
             sel = input('> ').strip()
             if sel.upper() == 'T':
                 if not records:
