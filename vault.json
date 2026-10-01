@@ -1,5 +1,10 @@
 {
     "vault": [
-        
+        {
+            "id": 1,
+            "cipher_text": "khoor",
+            "cipher": "c",
+            "key": 3
+        }
     ]
 }

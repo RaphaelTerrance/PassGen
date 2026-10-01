@@ -1,32 +1,44 @@
 #learning fns in py
-#wish me luck
-from colorama import Fore,Style,init #for colors
-#import string #for printable
-import time #rly?
+#wish me luck 
+#khoor=hello(shift3)
+from colorama import Fore, Style, init #
 import json
+import time
 
 init(autoreset=True)#rids me of writing reset_all
 
 
 #need to see if it just throws that specific dict or entire file
 def getdata() -> dict:
-    with open('vault.json','w+') as file:
-        open_file = json.load(file)
-        return open_file
+    with open('vault.json', 'r') as file:
+        data = json.load(file)
+    if not data:
+        return {'vault': []}
+    if 'vault' not in data:
+        data['vault'] = []
+    return data
 
 def savedata(data:dict):    
+    file_data = getdata()
+    file_data['vault'].append(data)
     with open('vault.json','w') as file:
-        json.dump(data, file, indent=4)
-    return    
+        json.dump(file_data, file, indent=4)
+    return
 
 def start():
     while(True):
         print("Hi! Welcome to PassGen. What would you like? \n 1. Ciphertext Generation \n 2. Records \n Q for Quit")
+        
         choi1=input().strip()
+        
         if(choi1=='1'): cipher_generation()
+        
         elif(choi1=='2'): full_record()
+        
         elif(choi1=='3'): spl_ppl()
+        
         elif(choi1=='Q' or choi1=='q'): quit(0)
+        
         else:
             print('SYBAU')
             continue
@@ -37,42 +49,30 @@ def load_animation():
         time.sleep(0.05)
     print()
     return
+   
 
-#it's the start of the prg    
-
-def id_add():
-    id=id+1
 def cipher_generation(): 
-    plaintext = input('Enter plaintext: ')
-    print('Select cipher: 1=Caesar  2=ROT13  3=Vigenère')
-    opt = input('> ').strip()
-    #ur choice of cipher
+    plaintext = input("Enter plaintext: ")
+    print("Select cipher: 1=Caesar  2=ROT13  3=Vigenère")
+    opt = input("> ").strip()
+
     if opt == '1':
-        # Caesar encryption
-        result=caesar(plaintext,False)  
+        result = caesar(plaintext, False)
     elif opt == '2':
-        # ROT13
-        result=caesar(plaintext,True)            
+        result = caesar(plaintext, True)
     elif opt == '3':
-        # Vigenère
         result = vignere(plaintext)
     else:
-        print('Unknown option.')
+        print("Unknown option.")
         return
-    #saving into "vault"'s pair (list)
-    print("Shall I save this?"+Fore.GREEN+('(y/')+Fore.RED+('n'))
-    if str(input().strip())=='y':
+
+    if input("Shall I save this? (y/n): ").strip().lower() == 'y':
         data = getdata()
-        records_list = data.get('vault', [])
-        # Determine next available ID
-        next_id = max([r.get('id', 0) for r in records_list], default=0) + 1
+        records = data.get('vault', [])
+        next_id = max((r.get('id', 0) for r in records), default=0) + 1
         result['id'] = next_id
-        records_list.append(result)
-        data['vault'] = records_list
-        savedata(data)
-        print('Record saved to vault.')
-        return
-    
+        savedata(result)
+
 def caesar(plaintext:str, rot13:bool ) -> dict:
     while True:
         try:
@@ -163,43 +163,42 @@ def full_record():
     return(print(getdata()))
 
 def decode_record(rec: dict) -> str:
-    if rec['cipher'] in {'c', 'r'}:
+    if rec['cipher'] == 'c':
+        return dcode_caesar(rec)
+    elif rec['cipher'] == 'r':
         return dcode_caesar(rec)
     elif rec['cipher'] == 'v':
         return dcode_vig(rec)
-    return ''
+    else: return ''
 
 def spl_ppl():
-    print('Welcome. Your good name please?')
-    name = input('> ').strip()
+    print("Welcome. Your good name please?")
+    name = input("> ").strip()
+
     data = getdata()
-    records = data.get('vault',[])
-    print(f'Hi {name}. We have {len(records)} ciphertext(s).')
-    if input('Wanna decode?'+Fore.YELLOW+' (y/n)').strip().lower() != 'y':
+    records = data.get('vault', [])
+
+    if name in {'Maria', 'Devananda'}:
+        print("Access denied.")
         return
-    if( name in {'Maria','Devananda'}):
-        print(Fore.RED+"Access denied.")
-        exit(0)
-    elif(name in ['Jenifa']):
-        print(Fore.GREEN+"Hi ma'am, Which would you like to decode? Enter T for total list or an index number.")
-        sel = input('> ').strip()
-        if sel.upper() == 'T':#full records
-            if not records:
-                print('No records to decode.')
-                return
+
+    if name == 'Jenifa':
+        print("Hi ma'am, Which would you like to decode? Enter T or an index number.")
+        sel = input("> ").strip()
+
+        if sel.upper() == 'T':
             for rec in records:
-                plain = decode_record(rec)
-                print(f"({rec['id']},{rec['cipher']}) ciphertext:{rec['cipher_text']}, plaintext:{plain}")
-            return
-        else:#check single index number
+                print(rec['id'], rec['cipher'], decode_record(rec))
+        else:
+            if not sel.isdigit():
+                print('Sybau')
+                return
             idx = int(sel)
-            flag = False
-            for i in records:   
-                if(idx==i['id']):
-                    plain = decode_record(i)
-                    print(f"({i['id']},{i['cipher']}) ciphertext:{i['cipher_text']}, plaintext:{plain}")
-                    flag=True
-            if flag:print("No one with that ID, ma'am."); return #gaslighting the code?   
+            for rec in records:
+                if rec['id'] == idx:
+                    print(decode_record(rec))
+                    return
+            print("Record not found.")
 
                 
         
@@ -209,6 +208,7 @@ def spl_ppl():
         print('Sybau')
         exit(0)
 
+#it's the start of the prg 
 if __name__ == "__main__":
     load_animation()
     start()
