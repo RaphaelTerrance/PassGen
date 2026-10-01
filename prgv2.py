@@ -10,7 +10,7 @@ init(autoreset=True)#rids me of writing reset_all
 
 #need to see if it just throws that specific dict or entire file
 def getdata() -> dict:
-    with open('vault.json','r') as file:
+    with open('vault.json','w+') as file:
         open_file = json.load(file)
         return open_file
 
@@ -63,7 +63,14 @@ def cipher_generation():
     #saving into "vault"'s pair (list)
     print("Shall I save this?"+Fore.GREEN+('(y/')+Fore.RED+('n'))
     if str(input().strip())=='y':
-        savedata(result)
+        data = getdata()
+        records_list = data.get('vault', [])
+        id = id+1
+        result['id'] = id
+        records_list.append(result)
+        data['vault'] = records_list
+        savedata(data)
+        print('Record saved to vault.')
         return
     
 def caesar(plaintext:str, rot13:bool ) -> dict:
@@ -136,6 +143,7 @@ def dcode_vig(ciphertext:dict) -> str:
 
 def vignere(plaintext:str) -> dict:
     key = input('Enter key (letters only): ').strip().upper()
+    if not key: key = 'testkey'
     parts = []
     k_idx = 0
     for ch in plaintext:
@@ -185,7 +193,7 @@ def spl_ppl():
             return
         else:#check single index number
             idx = int(sel)
-            for i in range(records):
+            for i in records:
                 flag = True
                 if(idx==i['id']):
                     plain = decode_record(i)
