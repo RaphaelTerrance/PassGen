@@ -66,6 +66,7 @@ def cipher_generation():
         print("Unknown option.")
         return
 
+    load_animation()
     if input("Shall I save this? (y/n): ").strip().lower() == 'y':
         data = getdata()
         records = data.get('vault', [])
@@ -160,7 +161,11 @@ def vignere(plaintext:str) -> dict:
     return({"cipher_text":cipher_text,"cipher":c_type,"key":key})
 
 def full_record():
-    return(print(getdata()))
+    load_animation()
+    data = getdata()
+    for rec in data.get('vault', []):
+        print(f"{rec.get('id')} {rec.get('cipher_text')}")
+    return
 
 def decode_record(rec: dict) -> str:
     if rec['cipher'] == 'c':
