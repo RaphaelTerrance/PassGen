@@ -160,6 +160,7 @@ def vignere(plaintext:str) -> dict:
     c_type = 'v'
     return({"cipher_text":cipher_text,"cipher":c_type,"key":key})
 
+# change such that it only shows ciphertext list
 def full_record():
     load_animation()
     data = getdata()

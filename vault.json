@@ -5,12 +5,7 @@
             "cipher_text": "khoor",
             "cipher": "c",
             "key": 3
-        },
-        {
-            "cipher_text": "ranbs nay",
-            "cipher": "v",
-            "key": "AAYUSH",
-            "id": 2
         }
+        
     ]
 }
