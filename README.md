@@ -1,10 +1,10 @@
 🔑 **PassGen (by RTF)**
 
-PassGen is a lightweight, fast, and secure ciphertext generator designed to help users secure passwords using known encryption.
+PassGen is a lightweight, fast, and secure ciphertext generator designed with simple ciphers.
 
 🚀 **Features**
 
-Ciphertexting: Stores your PWDS as ciphertext. (Within the best of my abilities.)
+Ciphertexting: Stores your Pwds as ciphertext. (Within the best of my abilities.)
 
 CLI Support: Quick command-line interface usage for automation or terminal lovers.
 
@@ -21,11 +21,11 @@ cd PassGen
 💡 **Usage**
 
 Run the script directly from your terminal:
-python prg.py
+python prgv2.py
 
 Contribution:
 It wasn't  meant for as such, but go crazy ig. The world's your oyster, and github your seafood restobar.
-License: I ain't got no two nickels. 
+License: You have my blessings. 
 
 **Author
 Raphael Terrance
