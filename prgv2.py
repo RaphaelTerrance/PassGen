@@ -39,10 +39,9 @@ def load_animation():
     return
 
 #it's the start of the prg    
-if __name__ == "__main__":
-    load_animation()
-    start()
 
+def id_add():
+    id=id+1
 def cipher_generation(): 
     plaintext = input('Enter plaintext: ')
     print('Select cipher: 1=Caesar  2=ROT13  3=Vigenère')
@@ -65,8 +64,9 @@ def cipher_generation():
     if str(input().strip())=='y':
         data = getdata()
         records_list = data.get('vault', [])
-        id = id+1
-        result['id'] = id
+        # Determine next available ID
+        next_id = max([r.get('id', 0) for r in records_list], default=0) + 1
+        result['id'] = next_id
         records_list.append(result)
         data['vault'] = records_list
         savedata(data)
@@ -193,12 +193,12 @@ def spl_ppl():
             return
         else:#check single index number
             idx = int(sel)
-            for i in records:
-                flag = True
+            flag = False
+            for i in records:   
                 if(idx==i['id']):
                     plain = decode_record(i)
                     print(f"({i['id']},{i['cipher']}) ciphertext:{i['cipher_text']}, plaintext:{plain}")
-                    flag=False
+                    flag=True
             if flag:print("No one with that ID, ma'am."); return #gaslighting the code?   
 
                 
@@ -208,6 +208,10 @@ def spl_ppl():
     else: 
         print('Sybau')
         exit(0)
+
+if __name__ == "__main__":
+    load_animation()
+    start()
 
 
 
