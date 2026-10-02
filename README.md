@@ -18,6 +18,10 @@ git clone https://github.com/RaphaelTerrance/PassGen.git
 
 cd PassGen
 
+Make sure to download colorama using
+
+pip install colorama
+
 💡 **Usage**
 
 Run the script directly from your terminal:
