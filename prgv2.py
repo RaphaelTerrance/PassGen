@@ -4,7 +4,7 @@
 from colorama import Fore, Style, init #
 import json
 import time
-import math
+print("hi")
 init(autoreset=True)#rids me of writing reset_all
 
 
