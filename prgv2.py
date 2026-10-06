@@ -4,11 +4,11 @@
 from colorama import Fore, Style, init #
 import json
 import time
-
+print("hi")
 init(autoreset=True)#rids me of writing reset_all
 
 
-#need to see if it just throws that specific dict or entire file
+#fills the entering var with the json file
 def getdata() -> dict:
     with open('vault.json', 'r') as file:
         data = json.load(file)
