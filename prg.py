@@ -245,6 +245,7 @@ while True:
         print('Unknown choice, please try again.')
 
 
-
+if i=10 :
+print("hi")
 
 
