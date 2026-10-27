@@ -18,9 +18,13 @@ git clone https://github.com/RaphaelTerrance/PassGen.git
 
 cd PassGen
 
-Make sure to download colorama using
+Install the required libraries:
 
-pip install colorama
+pip install colorama cryptography
+
+Optional: install the Ascon package if you want the native Ascon Hash256 route instead of the SHA-256 fallback:
+
+pip install ascon
 
 💡 **Usage**
 

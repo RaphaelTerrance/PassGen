@@ -1,0 +1,3 @@
+﻿Ciphertext,Plaintext,Encryption Method
+khoor,hello,Caesar Shift
+WPzAt9218mxe0AqxGeCOyRsckvCo6DMcpie0vA/0R3o=,Cannot decode (Install cryptography to use AES-128 decryption.),AES-128

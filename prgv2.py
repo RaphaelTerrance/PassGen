@@ -25,35 +25,46 @@ VAULT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'vault.jso
 def getdata() -> dict:
     if not os.path.exists(VAULT_FILE):
         return {'vault': []}
-    with open(VAULT_FILE, 'r') as file:
-        data = json.load(file)
+    try:
+        with open(VAULT_FILE, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except (json.JSONDecodeError, OSError):
+        return {'vault': []}
+    if not isinstance(data, dict):
+        return {'vault': []}
     if not data:
         return {'vault': []}
     if 'vault' not in data:
         data['vault'] = []
+    if not isinstance(data['vault'], list):
+        data['vault'] = []
     return data
 
-def savedata(data:dict):    
+def savedata(data: dict):
     file_data = getdata()
-    file_data['vault'].append(data)
-    with open(VAULT_FILE,'w') as file:
+    vault = file_data.setdefault('vault', [])
+    if not isinstance(vault, list):
+        vault = []
+        file_data['vault'] = vault
+    vault.append(data)
+    with open(VAULT_FILE, 'w', encoding='utf-8') as file:
         json.dump(file_data, file, indent=4)
     return
 
 def start():
-    while(True):
-        print("Hi! Welcome to PassGen. What would you like? \n 1. Ciphertext Generation \n 2. Records \n Q for Quit")
-        
-        choi1=input().strip()
-        
-        if(choi1=='1'): cipher_generation()
-        
-        elif(choi1=='2'): full_record()
-        
-        elif(choi1=='3'): spl_ppl()
-        
-        elif(choi1=='Q' or choi1=='q'): quit(0)
-        
+    while True:
+        print("Hi! Welcome to PassGen. What would you like? \n 1. Ciphertext Generation \n 2. Records \n 3. Special Access \n Q for Quit")
+
+        choi1 = input().strip()
+
+        if choi1 == '1':
+            cipher_generation()
+        elif choi1 == '2':
+            full_record()
+        elif choi1 == '3':
+            spl_ppl()
+        elif choi1.lower() == 'q':
+            quit(0)
         else:
             print('SYBAU')
             continue
@@ -70,12 +81,11 @@ def load_animation():
         progress = frame / 15.0
         bar_len = 24
         filled = int(progress * bar_len)
-        bar = "█" * filled + "░" * (bar_len - filled)
-        
-        # Scrambled hex / matrix ticker
+        bar = "#" * filled + "-" * (bar_len - filled)
+
         seed = secrets.token_hex(6).upper()
         ticker = "".join(secrets.choice(matrix_glyphs) for _ in range(8))
-        
+
         print(
             f"\r{color}{Style.BRIGHT}[{spin}] ENCRYPTING VAULT [{bar}] {int(progress * 100):3d}% | {seed} {ticker}{Style.RESET_ALL}",
             end='',
@@ -83,7 +93,7 @@ def load_animation():
         )
         time.sleep(0.06)
 
-    print(f"\r{Fore.GREEN}{Style.BRIGHT}[✓] ENCRYPTING VAULT [{ '█' * 24 }] 100% | READY!                    {Style.RESET_ALL}\n", flush=True)
+    print(f"\r{Fore.GREEN}{Style.BRIGHT}[OK] ENCRYPTING VAULT [{ '#' * 24 }] 100% | READY!                    {Style.RESET_ALL}\n", flush=True)
     return
 
 
@@ -314,20 +324,31 @@ def full_record():
     return
 
 def decode_record(rec: dict) -> str:
-    if rec['cipher'] == 'c':
+    if not isinstance(rec, dict):
+        raise TypeError('rec must be a dict')
+
+    cipher = str(rec.get('cipher', '')).lower()
+    cipher_text = rec.get('cipher_text', '')
+
+    if cipher in {'c', 'r'}:
         return dcode_caesar(rec)
-    elif rec['cipher'] == 'r':
-        return dcode_caesar(rec)
-    elif rec['cipher'] == 'v':
+    elif cipher == 'v':
         return dcode_vig(rec)
-    elif rec['cipher'] == 'x':
-        return xor_stream_decrypt(rec.get('cipher_text', ''), str(rec.get('key', '')))
-    elif rec['cipher'] == 'a':
-        return aes_128_decrypt(rec.get('cipher_text', ''), str(rec.get('key', '')), str(rec.get('iv', '')))
-    elif rec['cipher'] == 'h':
-        return f"Hash256 digest: {rec.get('cipher_text', '')}"
+    elif cipher == 'x':
+        key = rec.get('key', '')
+        if key in (None, ''):
+            return ''
+        return xor_stream_decrypt(str(cipher_text), str(key))
+    elif cipher == 'a':
+        key = rec.get('key', '')
+        iv = rec.get('iv', '')
+        if key in (None, '') or iv in (None, ''):
+            return ''
+        return aes_128_decrypt(str(cipher_text), str(key), str(iv))
+    elif cipher == 'h':
+        return f"Hash256 digest: {cipher_text}"
     else:
-        return ''
+        return str(cipher_text)
 
 def spl_ppl():
     print("Welcome. Your good name please?")
@@ -353,7 +374,10 @@ def spl_ppl():
                     writer.writerow(['Ciphertext', 'Plaintext', 'Encryption Method'])
                     for rec in records:
                         ct = rec.get('cipher_text', '')
-                        pt = decode_record(rec)
+                        try:
+                            pt = decode_record(rec)
+                        except Exception as dec_err:
+                            pt = f"[Decode unavailable: {dec_err}]"
                         method = CIPHER_NAMES.get(rec.get('cipher', ''), rec.get('cipher', 'Unknown'))
                         writer.writerow([ct, pt, method])
                 print(f"[+] Decrypted Excel spreadsheet generated: {jen_csv_path}")
@@ -382,9 +406,9 @@ def spl_ppl():
         
     #elif(name matches with class db):
         #sorry aint got time
-    else: 
+    else:
         print('Sybau')
-        exit(0)
+        return
 
 #it's the start of the prg 
 if __name__ == "__main__":
