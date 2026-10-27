@@ -1,0 +1,9 @@
+.env
+__pycache__/*
+.aistudio/*
+.antigravity/*
+.vscode/*
+*.json
+*.csv
+*.h5
+*.pyc

@@ -1,0 +1,8 @@
+cffi==2.1.1
+colorama==0.4.6
+cryptography==50.0.2
+customtkinter==6.0.0
+darkdetect==0.8.0
+packaging==26.3
+pillow==13.0.0
+pycparser==3.12

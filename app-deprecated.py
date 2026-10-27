@@ -1,5 +1,5 @@
 #this took 3 days of recoding by hand, 1 hr by codex
-#pls kurt cobain me
+#pls kurt cobain me, i will
 import time
 
 # Storage for records: each record is a dict with id, cipher, type ('c', 'r', 'v')

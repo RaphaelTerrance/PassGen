@@ -18,18 +18,38 @@ git clone https://github.com/RaphaelTerrance/PassGen.git
 
 cd PassGen
 
-Install the required libraries:
+Create and activate a virtual environment:
 
-pip install colorama cryptography
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+On macOS or Linux, activate it with:
+
+```sh
+source .venv/bin/activate
+```
+
+Install the required libraries in the activated environment:
+
+```sh
+python -m pip install colorama cryptography
+```
 
 Optional: install the Ascon package if you want the native Ascon Hash256 route instead of the SHA-256 fallback:
 
-pip install ascon
+```sh
+python -m pip install ascon
+```
 
 💡 **Usage**
 
 Run the script directly from your terminal:
+
+```sh
 python prgv2.py
+```
 
 Contribution:
 It wasn't  meant for as such, but go crazy ig. The world's your oyster, and github your seafood restobar.

@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PassGen - Secure Password Vault & Cipher Generator</title>
+  <meta name="description" content="Secure password vault and ciphertext generator with user authentication, custom ciphers, and verified export.">
+  <link rel="icon" type="image/png" href="/static/app_icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #15171a;
+      --card-bg: #1d2126;
+      --entry-bg: #191c20;
+      --accent-orange: #f14e32;
+      --accent-hover: #ff6b52;
+      --text-primary: #ffffff;
+      --text-muted: #9ba3af;
+      --outer-wheel-grey: #343a40;
+      --inner-wheel-grey: #2a2e33;
+      --wheel-lettering-grey: #adb5bd;
+      --border-grey: #2c323a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-grey);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid rgba(241, 78, 50, 0.4);
+      background-color: var(--entry-bg);
+    }
+
+    .title-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1.app-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+
+    .app-desc {
+      font-size: 12px;
+      color: var(--wheel-lettering-grey);
+    }
+
+    .user-session-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-pill {
+      background-color: var(--entry-bg);
+      border: 1px solid var(--border-grey);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-orange);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-logout {
+      background-color: var(--outer-wheel-grey);
+      color: var(--text-primary);
+      border: 1px solid var(--border-grey);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-logout:hover {
+      background-color: #ef4444;
+      border-color: #ef4444;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .category-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--accent-orange);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-grey);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    /* Auth Screen */
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 120px);
+      padding: 20px;
+    }
+
+    .auth-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-grey);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.4);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .auth-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      border: 2px solid var(--accent-orange);
+      box-shadow: 0 0 20px rgba(241, 78, 50, 0.25);
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background-color: var(--entry-bg);
+      padding: 5px;
+      border-radius: 8px;
+      border: 1px solid var(--border-grey);
+      margin-bottom: 20px;
+    }
+
+    .auth-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--wheel-lettering-grey);
+      padding: 8px 4px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .auth-tab-btn.active {
+      background-color: var(--accent-orange);
+      color: var(--text-primary);
+    }
+
+    .auth-view {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .auth-view.active {
+      display: flex;
+    }
+
+    /* Dashboard Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      background-color: var(--card-bg);
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border-grey);
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--wheel-lettering-grey);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background-color: var(--outer-wheel-grey);
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent-orange);
+      color: var(--text-primary);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Form Fields */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--wheel-lettering-grey);
+    }
+
+    input[type="text"], input[type="password"], input[type="number"], textarea {
+      background-color: var(--entry-bg);
+      border: 1px solid var(--border-grey);
+      color: var(--text-primary);
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s ease;
+      width: 100%;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus, input[type="number"]:focus, textarea:focus {
+      border-color: var(--accent-orange);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-orange);
+      color: var(--text-primary);
+      border: none;
+      border-radius: 8px;
+      padding: 11px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--outer-wheel-grey);
+      color: var(--text-primary);
+      border: 1px solid var(--border-grey);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--inner-wheel-grey);
+      border-color: var(--accent-orange);
+    }
+
+    /* Vault Table */
+    .vault-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .vault-card {
+      background-color: var(--entry-bg);
+      border: 1px solid var(--border-grey);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .vault-card:hover {
+      border-color: var(--outer-wheel-grey);
+    }
+
+    .service-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .vault-meta {
+      font-size: 12px;
+      color: var(--wheel-lettering-grey);
+      margin-top: 2px;
+    }
+
+    .cipher-badge {
+      background-color: var(--outer-wheel-grey);
+      color: var(--wheel-lettering-grey);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .ciphertext-preview {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .decrypted-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #4ade80;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* Add Password Split */
+    .add-split {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .add-split {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dial-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    canvas#cipherDial {
+      border-radius: 50%;
+      margin: 8px 0;
+    }
+
+    .dial-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-orange);
+      height: 6px;
+      background: var(--outer-wheel-grey);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    /* Export Box */
+    .export-box {
+      background-color: var(--entry-bg);
+      border: 1px solid var(--border-grey);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      color: var(--text-primary);
+      min-height: 220px;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+
+    .code-box {
+      background-color: var(--entry-bg);
+      border: 1px solid var(--border-grey);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--wheel-lettering-grey);
+      max-height: 520px;
+      overflow-y: auto;
+      white-space: pre;
+    }
+
+    .status-msg {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--accent-orange);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header>
+    <div class="brand-group">
+      <img src="/static/app_icon.png" alt="PassGen Icon" class="app-icon" onerror="this.style.display='none'">
+      <div class="title-col">
+        <h1 class="app-title">PassGen</h1>
+        <p class="app-desc">Secure Password Vault & Cipher Generator</p>
+      </div>
+    </div>
+    <div class="user-session-bar" id="sessionBar" style="display: none;">
+      <div class="user-pill">
+        <span>👤</span>
+        <span id="sessionUser">user</span>
+      </div>
+      <button class="btn-logout" id="btnLogout">🚪 Log Out</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Screen 1: Authentication (Demo / User / New User) -->
+    <div class="auth-container" id="authScreen">
+      <div class="auth-card">
+        <div class="auth-header">
+          <img src="/static/app_icon.png" alt="PassGen Logo" class="auth-icon" onerror="this.style.display='none'">
+          <h2 style="font-size: 22px; font-weight: 800; color: var(--text-primary);">PassGen Access</h2>
+          <p style="font-size: 13px; color: var(--wheel-lettering-grey);">Select your entry method to access the password vault.</p>
+        </div>
+
+        <!-- 3 Auth Options -->
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" data-auth="demo">Demo</button>
+          <button class="auth-tab-btn" data-auth="login">User Login</button>
+          <button class="auth-tab-btn" data-auth="register">New User</button>
+        </div>
+
+        <!-- Option A: Demo -->
+        <div class="auth-view active" id="view-demo">
+          <div class="category-title">
+            <span>🚀</span> Instant Guest Demo
+          </div>
+          <p style="font-size: 13px; color: var(--wheel-lettering-grey); line-height: 1.5;">
+            Explore the password vault and cipher generator with pre-populated demo records. No credentials required.
+          </p>
+          <button class="btn-primary" id="btnEnterDemo" style="margin-top: 8px;">
+            Enter as Demo User
+          </button>
+        </div>
+
+        <!-- Option B: User Login -->
+        <div class="auth-view" id="view-login">
+          <div class="category-title">
+            <span>🔐</span> Existing User Login
+          </div>
+          <div class="form-group">
+            <label for="loginUser">Username</label>
+            <input type="text" id="loginUser" placeholder="Enter username...">
+          </div>
+          <div class="form-group">
+            <label for="loginPwd">Password</label>
+            <input type="password" id="loginPwd" placeholder="Enter password...">
+          </div>
+          <div class="status-msg" id="loginMsg" style="color: var(--accent-orange);"></div>
+          <button class="btn-primary" id="btnLoginSubmit">
+            Log In to Vault
+          </button>
+        </div>
+
+        <!-- Option C: New User -->
+        <div class="auth-view" id="view-register">
+          <div class="category-title">
+            <span>✨</span> Create New Account
+          </div>
+          <div class="form-group">
+            <label for="regUser">Choose Username</label>
+            <input type="text" id="regUser" placeholder="At least 3 characters...">
+          </div>
+          <div class="form-group">
+            <label for="regPwd">Choose Password</label>
+            <input type="password" id="regPwd" placeholder="At least 4 characters...">
+          </div>
+          <div class="status-msg" id="regMsg" style="color: var(--accent-orange);"></div>
+          <button class="btn-primary" id="btnRegisterSubmit">
+            Register & Open Vault
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Authenticated Dashboard (Vault, Add, Export, Code) -->
+    <div id="dashboardScreen" style="display: none; flex-direction: column; width: 100%;">
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="tab-vault">
+          <span>📁</span> 1. See the Vault
+        </button>
+        <button class="tab-btn" data-tab="tab-add">
+          <span>➕</span> 2. Add New Password
+        </button>
+        <button class="tab-btn" data-tab="tab-export">
+          <span>🔓</span> 3. Export Saved Passwords
+        </button>
+        <button class="tab-btn" data-tab="tab-special">
+          <span>👑</span> 4. Special Access (spl_ppl)
+        </button>
+      </nav>
+
+      <!-- Tab 1: See the Vault -->
+      <div class="tab-panel active card" id="tab-vault">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+          <div class="category-title">
+            <span>🗄️</span> Saved Passwords (<span id="vaultCount">0</span>)
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" id="btnExportVaultCsv" style="color: var(--accent-orange); border-color: rgba(241, 78, 50, 0.4);">
+              <span>📊</span> Export Vault CSV (vault_records.csv)
+            </button>
+            <button class="btn-secondary" id="btnRefreshVault">🔄 Refresh Vault</button>
+          </div>
+        </div>
+        <div class="vault-grid" id="vaultContainer">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Tab 2: Add New Password -->
+      <div class="tab-panel card" id="tab-add">
+        <div class="add-split">
+          <!-- Left Column: Fields -->
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="category-title">
+              <span>⚙️</span> Choose Encryption Method (PassGen v2)
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background-color: var(--entry-bg); padding: 6px; border-radius: 8px; border: 1px solid var(--border-grey);">
+              <button class="btn-secondary active" id="methodCaesar" style="justify-content: center; border-color: var(--accent-orange);">Caesar (Shift N)</button>
+              <button class="btn-secondary" id="methodRot13" style="justify-content: center;">ROT13 (Shift 13)</button>
+              <button class="btn-secondary" id="methodVigenere" style="justify-content: center;">Vigenère (Keyword)</button>
+              <button class="btn-secondary" id="methodXor" style="justify-content: center;">XOR Stream (Key)</button>
+              <button class="btn-secondary" id="methodAes" style="justify-content: center;">AES-128 (16-Byte)</button>
+            </div>
+
+            <!-- Dynamic Parameter: Shift, Keyword, XOR key, AES key -->
+            <div class="form-row" id="addParamRow">
+              <div class="form-group" style="flex: 1;" id="addShiftGroup">
+                <label id="addShiftLabel">Shift Offset (+3):</label>
+                <input type="number" id="addShiftInput" min="0" max="25" value="3">
+              </div>
+              <div class="form-group" style="flex: 1; display: none;" id="addKeywordGroup">
+                <label>Keyword (Letters only):</label>
+                <input type="text" id="addKeywordInput" value="KEY" placeholder="e.g. SECRET">
+              </div>
+              <div class="form-group" style="flex: 1; display: none;" id="addXorGroup">
+                <label>XOR Stream Secret Key:</label>
+                <input type="text" id="addXorInput" value="PASSGEN_KEY" placeholder="Enter XOR key...">
+              </div>
+              <div class="form-group" style="flex: 1; display: none;" id="addAesGroup">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                  <label>16-Byte AES Key:</label>
+                  <button type="button" id="btnGenAesKey" style="background: none; border: none; color: var(--accent-orange); font-size: 11px; cursor: pointer; font-weight: 700;">⚡ Random Key</button>
+                </div>
+                <input type="text" id="addAesInput" value="1234567890123456" maxlength="16" placeholder="16-character key...">
+              </div>
+            </div>
+
+            <div class="category-title" style="margin-top: 4px;">
+              <span>📝</span> Credential Details
+            </div>
+            <div class="form-group">
+              <label for="addService">Website or Service Name</label>
+              <input type="text" id="addService" placeholder="e.g. Google, GitHub, Work Portal...">
+            </div>
+            <div class="form-group">
+              <label for="addAccountUser">Account Username or Email</label>
+              <input type="text" id="addAccountUser" placeholder="e.g. user@example.com...">
+            </div>
+            <div class="form-group">
+              <label for="addPassword">Password to Encrypt</label>
+              <input type="text" id="addPassword" placeholder="Type password to encrypt...">
+            </div>
+
+            <!-- Password Quality & Strength Meter -->
+            <div class="strength-meter-box" style="background-color: var(--entry-bg); border: 1px solid var(--border-grey); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+                <span style="color: var(--wheel-lettering-grey); font-weight: 600;">Password Strength:</span>
+                <span id="strengthBadge" style="font-weight: 700; color: var(--wheel-lettering-grey); font-size: 12px;">None (0%)</span>
+              </div>
+
+              <!-- 5-Segment Strength Bar -->
+              <div class="strength-bar-segments" style="display: flex; gap: 4px; height: 6px; width: 100%;">
+                <div class="strength-segment" id="seg1" style="flex: 1; background: var(--outer-wheel-grey); border-radius: 3px; transition: background-color 0.2s ease;"></div>
+                <div class="strength-segment" id="seg2" style="flex: 1; background: var(--outer-wheel-grey); border-radius: 3px; transition: background-color 0.2s ease;"></div>
+                <div class="strength-segment" id="seg3" style="flex: 1; background: var(--outer-wheel-grey); border-radius: 3px; transition: background-color 0.2s ease;"></div>
+                <div class="strength-segment" id="seg4" style="flex: 1; background: var(--outer-wheel-grey); border-radius: 3px; transition: background-color 0.2s ease;"></div>
+                <div class="strength-segment" id="seg5" style="flex: 1; background: var(--outer-wheel-grey); border-radius: 3px; transition: background-color 0.2s ease;"></div>
+              </div>
+
+              <!-- Regex Complexity Criteria Checklist -->
+              <div class="criteria-list" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px;">
+                <span class="criteria-pill" id="crit-len" style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background: rgba(52, 58, 64, 0.4); border: 1px solid var(--border-grey); color: var(--wheel-lettering-grey); transition: all 0.2s ease;">
+                  <span class="crit-icon">○</span> 8+ Chars
+                </span>
+                <span class="criteria-pill" id="crit-upper" style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background: rgba(52, 58, 64, 0.4); border: 1px solid var(--border-grey); color: var(--wheel-lettering-grey); transition: all 0.2s ease;">
+                  <span class="crit-icon">○</span> Uppercase (A-Z)
+                </span>
+                <span class="criteria-pill" id="crit-lower" style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background: rgba(52, 58, 64, 0.4); border: 1px solid var(--border-grey); color: var(--wheel-lettering-grey); transition: all 0.2s ease;">
+                  <span class="crit-icon">○</span> Lowercase (a-z)
+                </span>
+                <span class="criteria-pill" id="crit-num" style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background: rgba(52, 58, 64, 0.4); border: 1px solid var(--border-grey); color: var(--wheel-lettering-grey); transition: all 0.2s ease;">
+                  <span class="crit-icon">○</span> Number (0-9)
+                </span>
+                <span class="criteria-pill" id="crit-sym" style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background: rgba(52, 58, 64, 0.4); border: 1px solid var(--border-grey); color: var(--wheel-lettering-grey); transition: all 0.2s ease;">
+                  <span class="crit-icon">○</span> Symbol (!@#$)
+                </span>
+              </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="category-title" style="margin-top: 4px;">
+              <span>🔒</span> Encrypted Password Preview
+            </div>
+            <div style="background-color: var(--entry-bg); border: 1px solid var(--border-grey); border-radius: 8px; padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text-primary);" id="addPreview">
+              [Encrypted preview will appear here]
+            </div>
+
+            <button class="btn-primary" id="btnSavePassword" style="margin-top: 6px;">
+              <span>💾</span> Encrypt & Save to Vault
+            </button>
+            <div class="status-msg" id="addMsg" style="color: #4ade80;"></div>
+          </div>
+
+          <!-- Right Column: Dial Visualizer -->
+          <div class="dial-card card" style="background-color: var(--entry-bg);">
+            <div class="category-title" style="width: 100%;">
+              <span>🔄</span> Cipher Dial Visualizer
+            </div>
+            <canvas id="cipherDial" width="260" height="260"></canvas>
+            <div class="dial-slider-row">
+              <button class="btn-secondary" id="btnDialMinus" style="padding: 4px 10px;">◀ -1</button>
+              <input type="range" id="dialSlider" min="0" max="25" value="3">
+              <button class="btn-secondary" id="btnDialPlus" style="padding: 4px 10px;">+1 ▶</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px; font-size: 10px; color: var(--wheel-lettering-grey);">
+              <span>Outer: Plaintext (#343a40)</span>
+              <span>Inner: Cipher (#f14e32)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Export Saved Passwords -->
+      <div class="tab-panel card" id="tab-export">
+        <div class="category-title">
+          <span>🛡️</span> Security Authentication for Password Export
+        </div>
+        <p style="font-size: 13px; color: var(--wheel-lettering-grey); margin-bottom: 12px;">
+          To export your saved passwords, re-enter your login username and master password. Once authenticated, all decrypted passwords for your account will be unlocked.
+        </p>
+
+        <div style="background-color: var(--entry-bg); border: 1px solid var(--border-grey); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label for="exportUser">Username</label>
+              <input type="text" id="exportUser">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="exportPwd">Master Password</label>
+              <input type="password" id="exportPwd" placeholder="Enter password...">
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button class="btn-primary" id="btnExportSubmit" style="height: 42px;">
+                <span>🔓</span> Authenticate & Decrypt
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div class="category-title">
+            <span>📜</span> Decrypted Passwords Export Result
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" id="btnCopyExport" disabled>📋 Copy All</button>
+            <button class="btn-secondary" id="btnDownloadCsv" disabled>📊 Export CSV (Excel)</button>
+            <button class="btn-secondary" id="btnDownloadExport" disabled>💾 Download Text</button>
+          </div>
+        </div>
+        <div class="export-box" id="exportResultBox">Authenticate above to unlock and export your decrypted passwords.</div>
+      </div>
+
+      <!-- Tab 4: Special Access (spl_ppl) -->
+      <div class="tab-panel card" id="tab-special">
+        <div class="category-title" style="color: #c084fc; display: flex; align-items: center; gap: 8px;">
+          <span>👑</span> SPECIAL ACCESS GATEWAY (spl_ppl)
+        </div>
+        <p style="font-size: 13px; color: var(--wheel-lettering-grey); margin-bottom: 14px;">
+          Privileged class database and user permission checkpoint ported directly from PassGen v2 CLI.
+        </p>
+
+        <div style="background-color: var(--entry-bg); border: 1px solid var(--border-grey); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+          <label style="display: block; font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+            Welcome. Your good name please?
+          </label>
+          <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+            <input type="text" id="specialNameInput" placeholder="Enter name (e.g. Jenifa, Maria, Devananda)..." style="flex: 1;">
+            <button class="btn-primary" id="btnVerifySpecial" style="background-color: #9333ea; border-color: #a855f7;">
+              <span>🔍</span> Verify Access
+            </button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); flex-wrap: wrap;">
+            <span>Known identities:</span>
+            <button class="btn-secondary special-preset-btn" data-name="Jenifa" style="font-size: 11px; padding: 4px 10px; color: #c084fc;">Jenifa (Master Privileges)</button>
+            <button class="btn-secondary special-preset-btn" data-name="Maria" style="font-size: 11px; padding: 4px 10px;">Maria (Denied)</button>
+            <button class="btn-secondary special-preset-btn" data-name="Devananda" style="font-size: 11px; padding: 4px 10px;">Devananda (Denied)</button>
+          </div>
+        </div>
+
+        <div id="specialResultArea">
+          <div style="text-align: center; padding: 40px; color: var(--wheel-lettering-grey);">
+            Enter your name above to query the PassGen special permissions gateway.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">Copied to clipboard!</div>
+
+  <script>
+    let currentUser = null;
+    let isDemo = false;
+    let currentShift = 3;
+    let currentCipher = "caesar";
+
+    const canvas = document.getElementById("cipherDial");
+    const ctx = canvas.getContext("2d");
+
+    function drawDial() {
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const rOuter = cx * 0.94;
+      const rOuterInner = cx * 0.72;
+      const rInner = cx * 0.70;
+      const rInnerInner = cx * 0.46;
+      const rCenter = cx * 0.32;
+
+      // Outer Rim (#343a40)
+      ctx.beginPath();
+      ctx.arc(cx, cy, rOuter, 0, Math.PI * 2);
+      ctx.fillStyle = "#343a40";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#2c323a";
+      ctx.stroke();
+
+      // Groove
+      ctx.beginPath();
+      ctx.arc(cx, cy, rOuterInner, 0, Math.PI * 2);
+      ctx.fillStyle = "#1c2024";
+      ctx.fill();
+
+      // Inner Wheel (#2a2e33)
+      ctx.beginPath();
+      ctx.arc(cx, cy, rInner, 0, Math.PI * 2);
+      ctx.fillStyle = "#2a2e33";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#2c323a";
+      ctx.stroke();
+
+      // Center Cutout
+      ctx.beginPath();
+      ctx.arc(cx, cy, rInnerInner, 0, Math.PI * 2);
+      ctx.fillStyle = "#181b1e";
+      ctx.fill();
+
+      // Center Badge (#15171a, border #f14e32)
+      ctx.beginPath();
+      ctx.arc(cx, cy, rCenter, 0, Math.PI * 2);
+      ctx.fillStyle = "#15171a";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#f14e32";
+      ctx.stroke();
+
+      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const total = alphabet.length;
+      const step = (Math.PI * 2) / total;
+
+      // Outer Letters (#adb5bd)
+      const rTextOuter = (rOuter + rOuterInner) / 2;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "bold 9px 'JetBrains Mono', monospace";
+      for (let i = 0; i < total; i++) {
+        const angle = -Math.PI / 2 + (i * step);
+        const tx = cx + rTextOuter * Math.cos(angle);
+        const ty = cy + rTextOuter * Math.sin(angle);
+        ctx.fillStyle = "#adb5bd";
+        ctx.fillText(alphabet[i], tx, ty);
+      }
+
+      // Inner Letters (#f14e32)
+      const rTextInner = (rInner + rInnerInner) / 2;
+      for (let i = 0; i < total; i++) {
+        const shiftedIdx = (i + currentShift) % total;
+        const angle = -Math.PI / 2 + (i * step);
+        const tx = cx + rTextInner * Math.cos(angle);
+        const ty = cy + rTextInner * Math.sin(angle);
+        ctx.fillStyle = "#f14e32";
+        ctx.fillText(alphabet[shiftedIdx], tx, ty);
+      }
+
+      // Notch
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - rOuter - 2);
+      ctx.lineTo(cx, cy - rOuter + 6);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#f14e32";
+      ctx.stroke();
+
+      // Shift text
+      const shiftStr = currentShift >= 0 ? `+${currentShift}` : `${currentShift}`;
+      ctx.fillStyle = "#f14e32";
+      ctx.font = "bold 18px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText(shiftStr, cx, cy - 4);
+
+      ctx.fillStyle = "#adb5bd";
+      ctx.font = "bold 8px 'JetBrains Mono', monospace";
+      ctx.fillText("SHIFT", cx, cy + 12);
+    }
+
+    function updateShift(val) {
+      currentShift = ((val % 26) + 26) % 26;
+      document.getElementById("dialSlider").value = currentShift;
+      if (currentCipher === "caesar") {
+        document.getElementById("addShiftInput").value = currentShift;
+        document.getElementById("addShiftLabel").textContent = `Shift Offset (+${currentShift}):`;
+      }
+      drawDial();
+      updateAddPreview();
+    }
+
+    document.getElementById("dialSlider").addEventListener("input", (e) => {
+      updateShift(parseInt(e.target.value));
+    });
+
+    document.getElementById("btnDialMinus").addEventListener("click", () => {
+      updateShift(currentShift - 1);
+    });
+
+    document.getElementById("btnDialPlus").addEventListener("click", () => {
+      updateShift(currentShift + 1);
+    });
+
+    document.getElementById("addShiftInput").addEventListener("input", (e) => {
+      const v = parseInt(e.target.value) || 0;
+      updateShift(v);
+    });
+
+    // Auth screen tabs
+    document.querySelectorAll(".auth-tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".auth-tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`view-${btn.dataset.auth}`).classList.add("active");
+      });
+    });
+
+    // Demo Enter
+    document.getElementById("btnEnterDemo").addEventListener("click", () => {
+      loginSuccess("demo", true);
+    });
+
+    // User Login
+    document.getElementById("btnLoginSubmit").addEventListener("click", async () => {
+      const u = document.getElementById("loginUser").value.trim();
+      const p = document.getElementById("loginPwd").value;
+      const msg = document.getElementById("loginMsg");
+      msg.textContent = "";
+
+      if (!u || !p) {
+        msg.textContent = "Please enter both username and password.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loginSuccess(data.username, data.is_demo);
+        } else {
+          msg.textContent = `⚠️ ${data.message}`;
+        }
+      } catch (e) {
+        msg.textContent = "Error communicating with authentication server.";
+      }
+    });
+
+    // Register User
+    document.getElementById("btnRegisterSubmit").addEventListener("click", async () => {
+      const u = document.getElementById("regUser").value.trim();
+      const p = document.getElementById("regPwd").value;
+      const msg = document.getElementById("regMsg");
+      msg.textContent = "";
+
+      if (!u || !p) {
+        msg.textContent = "Please fill in all fields.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loginSuccess(data.username, false);
+        } else {
+          msg.textContent = `⚠️ ${data.message}`;
+        }
+      } catch (e) {
+        msg.textContent = "Error communicating with registration server.";
+      }
+    });
+
+    function loginSuccess(username, demoFlag) {
+      currentUser = username;
+      isDemo = demoFlag;
+      document.getElementById("authScreen").style.display = "none";
+      document.getElementById("dashboardScreen").style.display = "flex";
+      document.getElementById("sessionBar").style.display = "flex";
+      document.getElementById("sessionUser").textContent = isDemo ? "DEMO GUEST" : username;
+      document.getElementById("exportUser").value = username;
+
+      loadVault();
+      drawDial();
+    }
+
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      currentUser = null;
+      isDemo = false;
+      document.getElementById("dashboardScreen").style.display = "none";
+      document.getElementById("sessionBar").style.display = "none";
+      document.getElementById("authScreen").style.display = "flex";
+    });
+
+    // Navigation Tabs
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+
+        if (btn.dataset.tab === "tab-vault") {
+          loadVault();
+        }
+      });
+    });
+
+    // Vault Loading
+    async function loadVault() {
+      if (!currentUser) return;
+      const container = document.getElementById("vaultContainer");
+      const countLbl = document.getElementById("vaultCount");
+
+      try {
+        const res = await fetch(`/api/vault?user=${encodeURIComponent(currentUser)}`);
+        const data = await res.json();
+        const records = data.vault || [];
+        countLbl.textContent = records.length;
+
+        if (records.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--wheel-lettering-grey);">
+              Your vault is empty. Click "2. Add New Password" to encrypt and save your credentials.
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = "";
+        const CIPHER_LABELS = {
+          c: "Caesar",
+          r: "ROT13",
+          v: "Vigenère",
+          x: "XOR Stream",
+          a: "AES-128"
+        };
+
+        records.forEach(rec => {
+          const card = document.createElement("div");
+          card.className = "vault-card";
+
+          const method = CIPHER_LABELS[rec.cipher] || (rec.cipher ? rec.cipher.toUpperCase() : "Unknown");
+          const safeKey = escapeHtml(String(rec.key || ''));
+          const safeIv = escapeHtml(String(rec.iv || ''));
+
+          card.innerHTML = `
+            <div>
+              <div class="service-title">${escapeHtml(rec.service || "General")}</div>
+              <div class="vault-meta">Account: ${escapeHtml(rec.account_username || currentUser)}  |  Method: ${method}</div>
+            </div>
+            <div>
+              <span class="cipher-badge">${method}</span>
+            </div>
+            <div style="flex: 1; min-width: 180px;">
+              <div class="ciphertext-preview">Cipher: ${escapeHtml(rec.cipher_text)}</div>
+              <div id="dec_card_${rec.id}"></div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary" onclick="decryptVaultCard(${rec.id}, '${escapeHtml(rec.cipher_text)}', '${rec.cipher}', '${safeKey}', '${safeIv}')">
+                🔓 Decrypt
+              </button>
+              <button class="btn-secondary" style="color: #ef4444;" onclick="deleteVaultCard(${rec.id})">
+                🗑
+              </button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (e) {
+        container.innerHTML = `<div style="color: var(--accent-orange); padding: 20px;">Failed to load vault.</div>`;
+      }
+    }
+
+    async function decryptVaultCard(id, cipher_text, cipher, key) {
+      try {
+        const res = await fetch("/api/decrypt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cipher_text, cipher, key })
+        });
+        const data = await res.json();
+        const container = document.getElementById(`dec_card_${id}`);
+        if (container) {
+          container.innerHTML = `<div class="decrypted-badge">Plaintext: "${escapeHtml(data.decrypted)}"</div>`;
+        }
+      } catch (e) {
+        showToast("Decryption failed");
+      }
+    }
+
+    async function deleteVaultCard(id) {
+      try {
+        const res = await fetch(`/api/vault/${id}?user=${encodeURIComponent(currentUser)}`, { method: "DELETE" });
+        if (res.ok) {
+          showToast(`Deleted record #${id}`);
+          loadVault();
+        }
+      } catch (e) {
+        showToast("Error deleting record");
+      }
+    }
+
+    // Add Password Methods
+    const methodBtns = {
+      caesar: document.getElementById("methodCaesar"),
+      rot13: document.getElementById("methodRot13"),
+      vigenere: document.getElementById("methodVigenere"),
+      xor: document.getElementById("methodXor"),
+      aes: document.getElementById("methodAes")
+    };
+
+    Object.keys(methodBtns).forEach(m => {
+      if (methodBtns[m]) {
+        methodBtns[m].addEventListener("click", () => setMethod(m));
+      }
+    });
+
+    function setMethod(method) {
+      currentCipher = method;
+
+      Object.values(methodBtns).forEach(b => {
+        if (b) {
+          b.classList.remove("active");
+          b.style.borderColor = "var(--border-grey)";
+        }
+      });
+
+      if (methodBtns[method]) {
+        methodBtns[method].classList.add("active");
+        methodBtns[method].style.borderColor = "var(--accent-orange)";
+      }
+
+      const shiftGroup = document.getElementById("addShiftGroup");
+      const keyGroup = document.getElementById("addKeywordGroup");
+      const xorGroup = document.getElementById("addXorGroup");
+      const aesGroup = document.getElementById("addAesGroup");
+
+      shiftGroup.style.display = "none";
+      keyGroup.style.display = "none";
+      xorGroup.style.display = "none";
+      aesGroup.style.display = "none";
+
+      if (method === "caesar") {
+        shiftGroup.style.display = "flex";
+        document.getElementById("addShiftInput").disabled = false;
+        document.getElementById("addShiftLabel").textContent = "Shift Offset (+3):";
+        updateShift(parseInt(document.getElementById("addShiftInput").value) || 3);
+      } else if (method === "rot13") {
+        shiftGroup.style.display = "flex";
+        document.getElementById("addShiftInput").value = "13";
+        document.getElementById("addShiftInput").disabled = true;
+        document.getElementById("addShiftLabel").textContent = "Fixed ROT13 Shift (+13):";
+        updateShift(13);
+      } else if (method === "vigenere") {
+        keyGroup.style.display = "flex";
+      } else if (method === "xor") {
+        xorGroup.style.display = "flex";
+      } else if (method === "aes") {
+        aesGroup.style.display = "flex";
+      }
+      updateAddPreview();
+    }
+
+    // AES Random Key Generator
+    document.getElementById("btnGenAesKey").addEventListener("click", () => {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let key = "";
+      const randVals = new Uint8Array(16);
+      window.crypto.getRandomValues(randVals);
+      for (let i = 0; i < 16; i++) {
+        key += chars[randVals[i] % chars.length];
+      }
+      document.getElementById("addAesInput").value = key;
+      updateAddPreview();
+    });
+
+    function evaluatePasswordStrength(pwd) {
+      const badge = document.getElementById("strengthBadge");
+      const segments = [
+        document.getElementById("seg1"),
+        document.getElementById("seg2"),
+        document.getElementById("seg3"),
+        document.getElementById("seg4"),
+        document.getElementById("seg5")
+      ];
+
+      const critLen = document.getElementById("crit-len");
+      const critUpper = document.getElementById("crit-upper");
+      const critLower = document.getElementById("crit-lower");
+      const critNum = document.getElementById("crit-num");
+      const critSym = document.getElementById("crit-sym");
+
+      function setPill(pill, satisfied, label) {
+        if (!pill) return;
+        if (satisfied) {
+          pill.style.background = "rgba(34, 197, 94, 0.18)";
+          pill.style.borderColor = "#22c55e";
+          pill.style.color = "#4ade80";
+          pill.innerHTML = `<span style="font-weight: 700;">✓</span> ${label}`;
+        } else {
+          pill.style.background = "rgba(52, 58, 64, 0.4)";
+          pill.style.borderColor = "var(--border-grey)";
+          pill.style.color = "var(--wheel-lettering-grey)";
+          pill.innerHTML = `<span style="opacity: 0.6;">○</span> ${label}`;
+        }
+      }
+
+      if (!pwd) {
+        badge.textContent = "None (0%)";
+        badge.style.color = "var(--wheel-lettering-grey)";
+        segments.forEach(s => { s.style.background = "var(--outer-wheel-grey)"; });
+        setPill(critLen, false, "8+ Chars");
+        setPill(critUpper, false, "Uppercase (A-Z)");
+        setPill(critLower, false, "Lowercase (a-z)");
+        setPill(critNum, false, "Number (0-9)");
+        setPill(critSym, false, "Symbol (!@#$)");
+        return;
+      }
+
+      const hasMinLen = pwd.length >= 8;
+      const hasGoodLen = pwd.length >= 12;
+      const hasUpper = /[A-Z]/.test(pwd);
+      const hasLower = /[a-z]/.test(pwd);
+      const hasNumber = /[0-9]/.test(pwd);
+      const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pwd);
+
+      setPill(critLen, hasMinLen, "8+ Chars");
+      setPill(critUpper, hasUpper, "Uppercase (A-Z)");
+      setPill(critLower, hasLower, "Lowercase (a-z)");
+      setPill(critNum, hasNumber, "Number (0-9)");
+      setPill(critSym, hasSymbol, "Symbol (!@#$)");
+
+      let score = 0;
+      if (hasMinLen) score += 1;
+      if (hasGoodLen) score += 1;
+      if (hasUpper && hasLower) score += 1;
+      else if (hasUpper || hasLower) score += 0.5;
+      if (hasNumber) score += 1;
+      if (hasSymbol) score += 1;
+
+      let label = "Very Weak";
+      let percent = 20;
+      let color = "#ef4444";
+      let activeSegments = 1;
+
+      if (score <= 1) {
+        label = "Very Weak";
+        percent = 20;
+        color = "#ef4444";
+        activeSegments = 1;
+      } else if (score <= 2) {
+        label = "Weak";
+        percent = 40;
+        color = "#f14e32";
+        activeSegments = 2;
+      } else if (score <= 3) {
+        label = "Fair";
+        percent = 60;
+        color = "#eab308";
+        activeSegments = 3;
+      } else if (score <= 4) {
+        label = "Strong";
+        percent = 80;
+        color = "#10b981";
+        activeSegments = 4;
+      } else {
+        label = "Very Strong";
+        percent = 100;
+        color = "#22c55e";
+        activeSegments = 5;
+      }
+
+      badge.textContent = `${label} (${percent}%)`;
+      badge.style.color = color;
+
+      segments.forEach((s, idx) => {
+        if (idx < activeSegments) {
+          s.style.background = color;
+        } else {
+          s.style.background = "var(--outer-wheel-grey)";
+        }
+      });
+    }
+
+    function getParamKeyForCurrentCipher() {
+      if (currentCipher === "caesar") return parseInt(document.getElementById("addShiftInput").value) || 3;
+      if (currentCipher === "rot13") return 13;
+      if (currentCipher === "vigenere") return document.getElementById("addKeywordInput").value.trim() || "KEY";
+      if (currentCipher === "xor") return document.getElementById("addXorInput").value.trim() || "PASSGEN_KEY";
+      if (currentCipher === "aes") return document.getElementById("addAesInput").value.trim() || "1234567890123456";
+      return "KEY";
+    }
+
+    async function updateAddPreview() {
+      const pwd = document.getElementById("addPassword").value;
+      const preview = document.getElementById("addPreview");
+
+      evaluatePasswordStrength(pwd);
+
+      if (!pwd) {
+        preview.textContent = "[Encrypted preview will appear here]";
+        return;
+      }
+
+      try {
+        const payload = {
+          plaintext: pwd,
+          cipher: currentCipher,
+          shift: currentShift,
+          key: getParamKeyForCurrentCipher()
+        };
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        preview.textContent = `Ciphertext: ${data.cipher_text}`;
+      } catch (e) {
+        preview.textContent = "Error calculating preview";
+      }
+    }
+
+    document.getElementById("addPassword").addEventListener("input", updateAddPreview);
+    document.getElementById("addKeywordInput").addEventListener("input", updateAddPreview);
+    document.getElementById("addXorInput").addEventListener("input", updateAddPreview);
+    document.getElementById("addAesInput").addEventListener("input", updateAddPreview);
+
+    // Save Password
+    document.getElementById("btnSavePassword").addEventListener("click", async () => {
+      const service = document.getElementById("addService").value.trim() || "General";
+      const account_user = document.getElementById("addAccountUser").value.trim() || currentUser;
+      const password = document.getElementById("addPassword").value;
+      const msg = document.getElementById("addMsg");
+      msg.textContent = "";
+
+      if (!password) {
+        msg.textContent = "⚠️ Please enter a password to encrypt.";
+        msg.style.color = "var(--accent-orange)";
+        return;
+      }
+
+      // Cyber Matrix Animation from PassGen v2 load_animation()
+      const spinners = ["|", "/", "-", "\\"];
+      const matrixGlyphs = "01$#%&*+=-~<>[]{}?@!";
+      let frame = 0;
+      const animInterval = setInterval(() => {
+        frame++;
+        const spin = spinners[frame % spinners.length];
+        const progress = Math.min(95, Math.floor((frame / 12) * 100));
+        const filled = Math.floor((progress / 100) * 16);
+        const bar = "#".repeat(filled) + "-".repeat(16 - filled);
+        let ticker = "";
+        for(let i=0; i<6; i++) ticker += matrixGlyphs[Math.floor(Math.random() * matrixGlyphs.length)];
+        msg.style.color = "#38bdf8";
+        msg.textContent = `[${spin}] ENCRYPTING VAULT [${bar}] ${progress}% | ${ticker}`;
+      }, 45);
+
+      try {
+        const payload = {
+          username: currentUser,
+          service: service,
+          account_username: account_user,
+          password: password,
+          cipher_type: currentCipher,
+          shift: currentShift,
+          key: getParamKeyForCurrentCipher()
+        };
+
+        const res = await fetch("/api/passwords/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        clearInterval(animInterval);
+        msg.textContent = `[OK] ENCRYPTING VAULT [${'#'.repeat(16)}] 100% | Saved Record #${data.id}!`;
+        msg.style.color = "#4ade80";
+
+        document.getElementById("addService").value = "";
+        document.getElementById("addAccountUser").value = "";
+        document.getElementById("addPassword").value = "";
+        updateAddPreview();
+
+        loadVault();
+      } catch (e) {
+        clearInterval(animInterval);
+        msg.textContent = "⚠️ Error saving password.";
+        msg.style.color = "var(--accent-orange)";
+      }
+    });
+
+    let lastExportData = null;
+
+    // Export Verification
+    document.getElementById("btnExportSubmit").addEventListener("click", async () => {
+      const u = document.getElementById("exportUser").value.trim();
+      const p = document.getElementById("exportPwd").value;
+      const box = document.getElementById("exportResultBox");
+      const copyBtn = document.getElementById("btnCopyExport");
+      const dlBtn = document.getElementById("btnDownloadExport");
+      const dlCsvBtn = document.getElementById("btnDownloadCsv");
+
+      try {
+        const res = await fetch("/api/passwords/export", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, master_password: p })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          lastExportData = data;
+          let text = `=== PASSGEN SECURE EXPORT: USER '${u}' ===\n`;
+          text += `Export Status: Authenticated & Decrypted Successfully\n`;
+          text += `Total Records: ${data.records.length}\n`;
+          text += `${"=".repeat(65)}\n\n`;
+
+          if (data.records.length === 0) {
+            text += "No saved passwords found in this vault.\n";
+          } else {
+            data.records.forEach(r => {
+              text += `ID: #${r.id}  |  Service: ${r.service}\n`;
+              text += `Account Username:    ${r.account_username}\n`;
+              text += `Cipher Method:       ${r.cipher_method} (Key: ${r.key})\n`;
+              text += `Encrypted Password:  ${r.encrypted_password}\n`;
+              text += `DECRYPTED PASSWORD:  ${r.decrypted_password}\n`;
+              text += `${"-".repeat(65)}\n\n`;
+            });
+          }
+
+          box.textContent = text;
+          copyBtn.disabled = false;
+          dlBtn.disabled = false;
+          if (dlCsvBtn) dlCsvBtn.disabled = false;
+          showToast("Authentication successful! Passwords decrypted.");
+        } else {
+          lastExportData = null;
+          box.textContent = `❌ ACCESS DENIED\n\n${data.message}\n\nPlease verify your login username and master password.`;
+          copyBtn.disabled = true;
+          dlBtn.disabled = true;
+          if (dlCsvBtn) dlCsvBtn.disabled = true;
+        }
+      } catch (e) {
+        box.textContent = "Error verifying export credentials.";
+      }
+    });
+
+    document.getElementById("btnCopyExport").addEventListener("click", () => {
+      const text = document.getElementById("exportResultBox").textContent;
+      navigator.clipboard.writeText(text);
+      showToast("Decrypted passwords copied to clipboard!");
+    });
+
+    document.getElementById("btnDownloadExport").addEventListener("click", () => {
+      const text = document.getElementById("exportResultBox").textContent;
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `passgen_export_${currentUser || 'vault'}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Export Vault CSV (vault_records.csv from full_record())
+    document.getElementById("btnExportVaultCsv")?.addEventListener("click", () => {
+      window.location.href = "/api/vault/export-csv";
+      showToast("Generating vault_records.csv spreadsheet...");
+    });
+
+    // Special Access Gateway (spl_ppl from PassGen v2)
+    async function verifySpecialName(inputName) {
+      const name = (inputName || document.getElementById("specialNameInput").value || "").trim();
+      const resArea = document.getElementById("specialResultArea");
+      if (!name) return;
+
+      try {
+        const res = await fetch("/api/special/access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        const status = data.status;
+
+        if (status === "denied") {
+          resArea.innerHTML = `
+            <div style="background-color: #2b1114; border: 1px solid #ef4444; border-radius: 8px; padding: 18px;">
+              <div style="font-size: 16px; font-weight: 800; color: #ef4444; margin-bottom: 6px;">
+                🛑 ACCESS DENIED
+              </div>
+              <div style="font-size: 13px; color: #fca5a5;">
+                Access restricted. You don't have decode permissions.
+              </div>
+            </div>`;
+        } else if (status === "jenifa") {
+          resArea.innerHTML = `
+            <div style="background-color: #1e1829; border: 1px solid #a855f7; border-radius: 8px; padding: 18px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                <div style="font-size: 16px; font-weight: 800; color: #d8b4fe;">
+                  👑 Hi ma'am, What would you like to do?
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn-secondary" id="btnJenifaExportCsv" style="background-color: #064e3b; border-color: #10b981; color: #6ee7b7;">
+                    <span>📊</span> 2. Export Decrypted Excel (vault_records_decrypted.csv)
+                  </button>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 12px; font-size: 13px; color: var(--wheel-lettering-grey);">
+                <span>1. Total List Decryption stream ('T'):</span>
+              </div>
+
+              <div id="jenifaRecordsContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto;">
+                <div style="color: var(--text-muted); font-size: 12px;">Loading vault records...</div>
+              </div>
+            </div>`;
+
+          document.getElementById("btnJenifaExportCsv").addEventListener("click", () => {
+            window.location.href = "/api/special/export-jenifa-csv";
+            showToast("Generating vault_records_decrypted.csv spreadsheet...");
+          });
+
+          // Load decoded records
+          try {
+            const decRes = await fetch("/api/special/records");
+            const decData = await decRes.json();
+            const listContainer = document.getElementById("jenifaRecordsContainer");
+            const records = decData.records || [];
+
+            if (records.length === 0) {
+              listContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No records saved in vault yet.</div>';
+            } else {
+              listContainer.innerHTML = "";
+              records.forEach(r => {
+                const item = document.createElement("div");
+                item.style.backgroundColor = "var(--entry-bg)";
+                item.style.border = "1px solid var(--border-grey)";
+                item.style.borderRadius = "6px";
+                item.style.padding = "10px 12px";
+                item.innerHTML = `
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-weight: 700; color: var(--accent-orange); font-size: 12px;">#${r.id}  ${escapeHtml(r.cipher_name)}</span>
+                    <span style="font-size: 11px; color: var(--wheel-lettering-grey);">Key: ${escapeHtml(String(r.key || ''))}</span>
+                  </div>
+                  <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-primary); margin-bottom: 2px;">
+                    Ciphertext: <span style="color: var(--wheel-lettering-grey);">${escapeHtml(r.cipher_text)}</span>
+                  </div>
+                  <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #4ade80; font-weight: 700;">
+                    Plaintext:  <span>${escapeHtml(r.plain_text)}</span>
+                  </div>
+                `;
+                listContainer.appendChild(item);
+              });
+            }
+          } catch (e) {
+            document.getElementById("jenifaRecordsContainer").innerHTML = '<div style="color: #ef4444; font-size: 12px;">Error loading decrypted records.</div>';
+          }
+
+        } else {
+          resArea.innerHTML = `
+            <div style="background-color: #261b14; border: 1px solid #f59e0b; border-radius: 8px; padding: 18px;">
+              <div style="font-size: 16px; font-weight: 800; color: #f59e0b; margin-bottom: 6px;">
+                ⚠️ SYBAU
+              </div>
+              <div style="font-size: 13px; color: #fde68a;">
+                '${escapeHtml(name)}' not recognized in class database security records.
+              </div>
+            </div>`;
+        }
+      } catch (e) {
+        resArea.innerHTML = '<div style="color: #ef4444; font-size: 12px;">Error contacting special access gateway.</div>';
+      }
+    }
+
+    document.getElementById("btnVerifySpecial")?.addEventListener("click", () => verifySpecialName());
+    document.getElementById("specialNameInput")?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") verifySpecialName();
+    });
+    document.querySelectorAll(".special-preset-btn")?.forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.getElementById("specialNameInput").value = btn.dataset.name;
+        verifySpecialName(btn.dataset.name);
+      });
+    });
+
+    document.getElementById("btnDownloadCsv").addEventListener("click", () => {
+      if (!lastExportData || !lastExportData.csv) {
+        showToast("No CSV data available to download.");
+        return;
+      }
+      const blob = new Blob([lastExportData.csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "vault_records_decrypted.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "flex";
+      setTimeout(() => { t.style.display = "none"; }, 2400);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
